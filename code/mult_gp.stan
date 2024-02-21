@@ -45,10 +45,7 @@ transformed parameters {
   real little_sigma = 1/eta; 
 }
   
-
-// The model to be estimated. We model the output
-// 'beta' to be (multivariate) normally distributed with mean 'mu'
-// and standard deviation 'Sigma'.
+// The model to be estimated. 
 model {
   // likelihood 
   vector[N] numer; 
