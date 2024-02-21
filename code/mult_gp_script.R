@@ -1,0 +1,79 @@
+setwd('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/')
+
+library(tidyverse)
+
+dat <- readRDS('data/events_with_matched_controls_nolag_df_v3.rds')
+dat <- dat %>% arrange(floodzip_id,zipcode,month,day,control_indicator) #order to match paper 
+
+library(rstan)
+
+floodzip_id <- length(unique(dat$floodzip_id))
+case_control_set <- length(unique(dat$control_indicator))
+
+durations <- dat %>% group_by(floodzip_id) %>% summarise(durations = unique(d)) %>% select(durations) %>% unname() %>% unlist()
+D <- max(durations)
+num_coeff <- D*(D+1)/2
+
+#define N as 0, then compute since there are multiple sets of rows per flood-zip combination if duration > 1
+N <- 0 
+for (k in 1:floodzip_id){
+  count = durations[k] * case_control_set
+  N = N + count
+} 
+
+Y <- dat$cases
+
+#create X matrix: define as 0, then figure out which columns exposure is in based on values of "d" and "t"
+#note: only every 3rd row is an event
+
+#X <- matrix(data = 0, nrow = nrow(dat), ncol = num_coeff) 
+#exposure_mapped <- apply(dat, 1, function(i) {t <- as.numeric(i[10]); d <- as.numeric(i[11]); d*(d-1)/2+t})[seq(1,N, by = 3)]
+#sequence <- seq(1,N, by = 3)
+# for (i in 1:length(sequence)){
+#   X[sequence[i],exposure_mapped[i]] <- 1
+# }
+# saveRDS(X, "X.rds")
+
+X <- readRDS('data/X_longformat.rds')
+
+offset <- dat$population
+
+t <- 1:D
+d <- sort(unique(durations))
+
+sum_Y <- c(rowsum(Y,rep(1:(length(Y)/3),each=case_control_set)))
+sequence <- seq(1, N, by = 3)
+
+mu <- rep(0, num_coeff)
+
+sigma_t <- 1
+sigma_d <- 1
+
+mult_gp_data <- list(floodzip_id = floodzip_id, 
+                     case_control_set = case_control_set, 
+                     durations = durations,
+                     D = D,
+                     num_coeff = num_coeff,
+                     N = N,
+                     Y = Y,
+                     X = X,
+                     offset = offset,
+                     t = t,
+                     d = d,
+                     sum_Y = sum_Y,
+                     sequence = sequence,
+                     mu = mu,
+                     sigma_t = sigma_t,
+                     sigma_d = sigma_d)
+
+test <- stan(
+  file = 'code/mult_gp.stan',  # Stan program
+  data = mult_gp_data,    # named list of data
+  chains = 1,             # number of Markov chains
+  warmup = 10,          # number of warmup iterations per chain
+  iter = 200,            # total number of iterations per chain
+  cores = 1,              # number of cores (could use one per chain)
+  refresh = 0             # no progress shown
+)
+
+
