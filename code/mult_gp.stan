@@ -43,7 +43,6 @@ parameters {
 
 transformed parameters {
   real little_sigma = 1/eta; 
-  matrix<lower=0>[num_coeff, num_coeff] Sigma = little_sigma*gp_exponential_cov(t_arr,sigma_t, phi)*gp_exponential_cov(d_arr,sigma_d, tau); // if there are not consecutive durations 'd' (2, 3, 5) such that the dimensions match t' (1, 2, 3, 4, 5), then the covariance calculation will fail  
 }
   
 
@@ -56,6 +55,8 @@ model {
   vector[N] denom;
   vector[N] prob;
   vector[N] log_lik;
+  // if there are not consecutive durations 'd' (2, 3, 5) such that the dimensions match t' (1, 2, 3, 4, 5), then the covariance calculation will fail  
+  matrix<lower=0>[num_coeff, num_coeff] Sigma = little_sigma*gp_exponential_cov(t_arr,sigma_t, phi)*gp_exponential_cov(d_arr,sigma_d, tau); 
   for (strata in 1:num_elements(sequence)){ //no length in STAN 
     for (obs in (sequence[strata]): (sequence[strata] + 2)){
       // j = 1,...,N indexes flood-zipcode-day
