@@ -1,4 +1,5 @@
-setwd('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/')
+setwd('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/') #cluster 
+setwd('~/Desktop/multinomial_GP/') #local
 
 library(tidyverse)
 
@@ -38,8 +39,18 @@ X <- readRDS('data/X_longformat.rds')
 
 offset <- dat$population
 
-t <- 1:D
-d <- sort(unique(durations))
+# td_combos <- data.frame()
+# for (i in 1:(D*(D+1)/2)) {
+#   for (j in 1:(D*(D+1)/2)) {
+#     d_i <- ceiling((sqrt(1 + 8*i) - 1)/2)
+#     t_i <- i - d_i*(d_i-1)/2
+#     d_j <- ceiling((sqrt(1 + 8*j) - 1)/2)
+#     t_j <- j - d_j*(d_j-1)/2
+#     td_combos <- rbind(td_combos, c(d_i, t_i, d_j, t_j))
+#   }
+# }
+
+td_combos <- readRDS('data/td_combos.rds')
 
 sum_Y <- c(rowsum(Y,rep(1:(length(Y)/3),each=case_control_set)))
 sequence <- seq(1, N, by = 3)
@@ -58,8 +69,7 @@ mult_gp_data <- list(floodzip_id = floodzip_id,
                      Y = Y,
                      X = X,
                      offset = offset,
-                     t = t,
-                     d = d,
+                     td_combos = td_combos,
                      sum_Y = sum_Y,
                      sequence = sequence,
                      mu = mu,

@@ -2,7 +2,6 @@
 // Multinomial (conditional poisson) with GP kernel
 // with mean 'mu' and standard deviation 'Sigma'.
 
-// 
 data {
   int<lower=1> floodzip_id; // number of unique flood-zip combinations 
   int<lower=1> case_control_set; // number of cases (2) + controls (1) in a matched set
@@ -15,8 +14,7 @@ data {
   matrix<lower=0, upper = 1>[N,num_coeff] X; // X is a matrix with dimensions N x D*(D+1)/2
   int<lower=1> offset[N]; // offset (population) is a vector of length N
   
-  positive_ordered[D] t; // possible time-points within a flood event
-  positive_ordered[D] d; // possible durations of a flood event 
+  matrix[num_coeff^2, 4] td_combos; // possible combinations of time-point and duration values within a flood event 
   
   // N should be exactly divisible by case_control_set to produce an integer, but use integer division operator to appease STAN
   int<lower=0> sum_Y[N / case_control_set]; // obtain sum of cases for every strata (i.e three rows)
@@ -29,15 +27,17 @@ data {
 }
 
 transformed data {
-  real t_arr[D] = to_array_1d(t);  
-  real d_arr[D] = to_array_1d(d); 
+  real t_i[num_coeff^2] = to_array_1d(td_combos[,1]);  
+  real d_i[num_coeff^2] = to_array_1d(td_combos[,2]);
+  real t_j[num_coeff^2] = to_array_1d(td_combos[,3]);
+  real d_j[num_coeff^2] = to_array_1d(td_combos[,4]);
 }
 
 // The parameters accepted by the model.
 parameters {
   real<lower=1e-9> eta; //non-zero
-  real<lower=1e-9> phi; // non-zero, lengthscale for t
-  real<lower=1e-9> tau; // non-zero, lengthscale for d
+  real<lower=1e-9> phi; // non-zero, lengthscale for d
+  real<lower=1e-9> tau; // non-zero, lengthscale for t
   vector[num_coeff] beta; // beta is a vector of length D*(D+1)/2
 }
 
@@ -52,8 +52,7 @@ model {
   vector[N] denom;
   vector[N] prob;
   vector[N] log_lik;
-  // if there are not consecutive durations 'd' (2, 3, 5) such that the dimensions match t' (1, 2, 3, 4, 5), then the covariance calculation will fail  
-  matrix<lower=0>[num_coeff, num_coeff] Sigma = little_sigma*gp_exponential_cov(t_arr,sigma_t, phi)*gp_exponential_cov(d_arr,sigma_d, tau); 
+  matrix<lower=0>[num_coeff, num_coeff] Sigma = little_sigma*gp_exponential_cov(d_i, d_j, sigma_d, phi)*gp_exponential_cov(t_i, t_j, sigma_t, tau); 
   for (strata in 1:num_elements(sequence)){ //no length in STAN 
     for (obs in (sequence[strata]): (sequence[strata] + 2)){
       // j = 1,...,N indexes flood-zipcode-day
