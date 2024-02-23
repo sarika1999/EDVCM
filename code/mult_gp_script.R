@@ -1,7 +1,7 @@
 setwd('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/') #cluster 
 setwd('~/Desktop/multinomial_GP/') #local
 
-library(tidyverse)
+suppressMessages(library(tidyverse))
 
 dat <- readRDS('data/events_with_matched_controls_nolag_df_v3.rds')
 dat <- dat %>% arrange(floodzip_id,zipcode,month,day,control_indicator) #order to match paper 
@@ -75,7 +75,7 @@ mult_gp_data <- list(floodzip_id = floodzip_id,
                      mu = mu,
                      sigma_t = sigma_t,
                      sigma_d = sigma_d)
-
+suppressMessages(
 test <- stan(
   file = 'code/mult_gp.stan',  # Stan program
   data = mult_gp_data,    # named list of data
@@ -84,6 +84,6 @@ test <- stan(
   iter = 10,            # total number of iterations per chain
   cores = 1,              # number of cores (could use one per chain)
   refresh = 0             # no progress shown
-)
+))
 
 
