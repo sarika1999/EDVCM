@@ -75,6 +75,7 @@ mult_gp_data <- list(floodzip_id = floodzip_id,
                      mu = mu,
                      sigma_t = sigma_t,
                      sigma_d = sigma_d)
+
 suppressMessages(
 test <- stan(
   file = 'code/mult_gp.stan',  # Stan program
