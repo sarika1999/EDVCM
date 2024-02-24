@@ -1,5 +1,5 @@
 setwd('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/') #cluster 
-setwd('~/Desktop/multinomial_GP/') #local
+#setwd('~/Desktop/multinomial_GP/') #local
 
 suppressMessages(library(tidyverse))
 
@@ -72,6 +72,7 @@ mult_gp_data <- list(floodzip_id = floodzip_id,
                      sequence = sequence,
                      mu = mu)
 
+
 suppressMessages(
 test <- stan(
   file = 'code/mult_gp.stan',  # Stan program
@@ -80,7 +81,7 @@ test <- stan(
   warmup = 1,          # number of warmup iterations per chain
   iter = 10,            # total number of iterations per chain
   cores = 1,              # number of cores (could use one per chain)
-  refresh = 0             # no progress shown
+  refresh = 1             # progress shown
 ))
 
 
