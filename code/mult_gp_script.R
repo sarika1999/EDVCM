@@ -39,26 +39,23 @@ X <- readRDS('data/X_longformat.rds')
 
 offset <- dat$population
 
-# td_combos <- data.frame()
-# for (i in 1:(D*(D+1)/2)) {
-#   for (j in 1:(D*(D+1)/2)) {
-#     d_i <- ceiling((sqrt(1 + 8*i) - 1)/2)
-#     t_i <- i - d_i*(d_i-1)/2
-#     d_j <- ceiling((sqrt(1 + 8*j) - 1)/2)
-#     t_j <- j - d_j*(d_j-1)/2
-#     td_combos <- rbind(td_combos, c(d_i, t_i, d_j, t_j))
-#   }
-# }
-
-td_combos <- readRDS('data/td_combos.rds')
+Sigma_d <- matrix(NA, nrow = num_coeff, ncol = num_coeff)
+Sigma_t <- matrix(NA, nrow = num_coeff, ncol = num_coeff)
+for (i in 1:num_coeff) {
+  for (j in 1:num_coeff) {
+    d_i <- ceiling((sqrt(1 + 8*i) - 1)/2)
+    d_j <- ceiling((sqrt(1 + 8*j) - 1)/2)
+    t_i <- i - d_i*(d_i-1)/2
+    t_j <- j - d_j*(d_j-1)/2
+    Sigma_d[i,j] <- abs(d_i - d_j)
+    Sigma_t[i,j] <- abs(t_i - t_j)
+  }
+}
 
 sum_Y <- c(rowsum(Y,rep(1:(length(Y)/3),each=case_control_set)))
 sequence <- seq(1, N, by = 3)
 
 mu <- rep(0, num_coeff)
-
-sigma_t <- 1
-sigma_d <- 1
 
 mult_gp_data <- list(floodzip_id = floodzip_id, 
                      case_control_set = case_control_set, 
@@ -69,12 +66,11 @@ mult_gp_data <- list(floodzip_id = floodzip_id,
                      Y = Y,
                      X = X,
                      offset = offset,
-                     td_combos = td_combos,
+                     Sigma_d = Sigma_d,
+                     Sigma_t = Sigma_t,
                      sum_Y = sum_Y,
                      sequence = sequence,
-                     mu = mu,
-                     sigma_t = sigma_t,
-                     sigma_d = sigma_d)
+                     mu = mu)
 
 suppressMessages(
 test <- stan(

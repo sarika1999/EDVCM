@@ -14,30 +14,21 @@ data {
   matrix<lower=0, upper = 1>[N,num_coeff] X; // X is a matrix with dimensions N x D*(D+1)/2
   int<lower=1> offset[N]; // offset (population) is a vector of length N
   
-  matrix[num_coeff*num_coeff, 4] td_combos; // possible combinations of time-point and duration values within a flood event 
+  matrix[num_coeff,num_coeff] Sigma_d;
+  matrix[num_coeff.num_coeff] Sigma_t;
   
   // N should be exactly divisible by case_control_set to produce an integer
   int<lower=0> sum_Y[N / case_control_set]; // obtain sum of cases for every strata (i.e three rows)
   int<lower=1> sequence[N / case_control_set]; // generate a sequence of numbers to indicate the start of a new strata (i.e. every three rows)
   
   vector<lower=0>[num_coeff] mu; // mu is a vector of length D*(D+1)/2
-  
-  real sigma_t; // sigma for t == 1
-  real sigma_d; // sigma for d == 1
-}
-
-transformed data {
-  real d_i[num_coeff*num_coeff] = to_array_1d(td_combos[,1]);  
-  real t_i[num_coeff*num_coeff] = to_array_1d(td_combos[,2]);
-  real d_j[num_coeff*num_coeff] = to_array_1d(td_combos[,3]);
-  real t_j[num_coeff*num_coeff] = to_array_1d(td_combos[,4]);
 }
 
 // The parameters accepted by the model.
 parameters {
-  real<lower=1e-9> eta; //non-zero
-  real<lower=1e-9> phi; // non-zero, lengthscale for d
-  real<lower=1e-9> tau; // non-zero, lengthscale for t
+  real eta; //non-zero
+  real phi; // non-zero, lengthscale for d
+  real tau; // non-zero, lengthscale for t
   vector[num_coeff] beta; // beta is a vector of length D*(D+1)/2
 }
 
@@ -52,7 +43,7 @@ model {
   vector[N] denom;
   vector[N] prob;
   vector[N] log_lik;
-  matrix[num_coeff, num_coeff] Sigma = little_sigma*gp_exponential_cov(d_i, d_j, sigma_d, phi)*gp_exponential_cov(t_i, t_j, sigma_t, tau); 
+  matrix[num_coeff, num_coeff] Sigma = little_sigma*exp(-1/phi*Sigma_d)*exp(-1/tau*Sigma_t);
   for (strata in 1:num_elements(sequence)){ //no length in STAN 
     for (obs in (sequence[strata]): (sequence[strata] + 2)){
       // j = 1,...,N indexes flood-zipcode-day
@@ -62,7 +53,7 @@ model {
       denom[obs] = sum(exp(numer[(sequence[strata]): (sequence[strata] + 2)]));
       // pi_j = exp(X_j * beta)*offset_j / sum_k(exp(X_k * beta)*offset_k)
       prob[obs] = numer[obs]/denom[obs];
-      log_lik[obs] = tgamma(sum_Y[strata])^(1 / case_control_set)*(prob[obs])^(Y[obs])*inv(tgamma(Y[obs]));
+      log_lik[obs] = (tgamma(sum_Y[strata])^(1 / case_control_set))*((prob[obs])^(Y[obs]))*inv(tgamma(Y[obs]));
     }
   }
   
