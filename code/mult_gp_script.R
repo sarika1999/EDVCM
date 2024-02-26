@@ -52,7 +52,7 @@ for (i in 1:num_coeff) {
   }
 }
 
-sum_Y <- c(rowsum(Y,rep(1:(length(Y)/3),each=case_control_set)))
+#sum_Y <- c(rowsum(Y,rep(1:(length(Y)/3),each=case_control_set)))
 sequence <- seq(1, N, by = 3)
 
 mu <- rep(0, num_coeff)
@@ -68,7 +68,6 @@ mult_gp_data <- list(floodzip_id = floodzip_id,
                      offset = offset,
                      Sigma_d = Sigma_d,
                      Sigma_t = Sigma_t,
-                     sum_Y = sum_Y,
                      sequence = sequence,
                      mu = mu)
 
@@ -78,10 +77,9 @@ test <- stan(
   file = 'code/mult_gp.stan',  # Stan program
   data = mult_gp_data,    # named list of data
   chains = 1,             # number of Markov chains
-  warmup = 1,          # number of warmup iterations per chain
-  iter = 10,            # total number of iterations per chain
+  warmup = 50,          # number of warmup iterations per chain
+  iter = 150,            # total number of iterations per chain
   cores = 1,              # number of cores (could use one per chain)
-  refresh = 1             # progress shown
 ))
 
 

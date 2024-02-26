@@ -19,7 +19,7 @@ data {
   // matrix[num_coeff, num_coeff] Sigma;
   
   // N should be exactly divisible by case_control_set to produce an integer
-  int<lower=0> sum_Y[N / case_control_set]; // obtain sum of cases for every strata (i.e three rows)
+  // int<lower=0> sum_Y[N / case_control_set]; // obtain sum of cases for every strata (i.e three rows)
   int<lower=1> sequence[N / case_control_set]; // generate a sequence of numbers to indicate the start of a new strata (i.e. every three rows)
   
   vector[num_coeff] mu; // mu is a vector of length D*(D+1)/2
@@ -41,30 +41,40 @@ parameters {
 model {
   // likelihood 
   vector[N] numer; 
-  vector[N] denom;
-  vector[N] prob;
-  vector[N] log_lik;
-  //matrix[num_coeff, num_coeff] Sigma = little_sigma*exp(-1/phi*Sigma_d)*exp(-1/tau*Sigma_t);
-  matrix[num_coeff, num_coeff] Sigma = exp(-Sigma_d)*exp(-Sigma_t); // set this as fixed to understand where issue is
-  for (strata in 1:num_elements(sequence)){ //no length in STAN 
-    for (obs in (sequence[strata]): (sequence[strata] + 2)){
+  vector[N / case_control_set] denom;
+  matrix[N / case_control_set, case_control_set] prob;
+  // vector[N] lik;
+  //matrix[num_coeff, num_coeff] log_Sigma = log(little_sigma) - 1/phi*Sigma_d - 1/tau*Sigma_t;
+  matrix[num_coeff, num_coeff] log_Sigma = -Sigma_d - Sigma_t; // set this as fixed to understand where issue is
+  
+  //for (strata in 1:num_elements(sequence)){ //no length in STAN 
+    //for (obs in (sequence[strata]): (sequence[strata] + 2)){
       // j = 1,...,N indexes flood-zipcode-day
       // Y ~ Poisson(lambda_j) --> log(lambda_j) = X_j * beta + log(offset_j)
-      numer[obs] = exp(X[obs] * beta) * offset[obs]; 
+      // numer[obs] = exp(X[obs] * beta) * offset[obs]; 
       // log(pi_j) = X_j * beta + log(offset_j) - log(sum_k(exp(X_k * beta)*offset_k))
-      denom[obs] = sum(exp(numer[(sequence[strata]): (sequence[strata] + 2)]));
+      // denom[obs] = sum(numer[(sequence[strata]): (sequence[strata] + 2)]);
       // pi_j = exp(X_j * beta)*offset_j / sum_k(exp(X_k * beta)*offset_k)
-      prob[obs] = numer[obs]/denom[obs];
-      log_lik[obs] = (tgamma(sum_Y[strata])^(1 / case_control_set))*inv(tgamma(Y[obs]))*((prob[obs])^(Y[obs]));
-    }
-  }
+      // prob[obs] = numer[obs]/denom[obs];
+      // lik[obs] = (tgamma(sum_Y[strata])^(1 / case_control_set))*inv(tgamma(Y[obs]))*((prob[obs])^(Y[obs])); 
+    //}
+  //}
   
+  for (obs in 1:N){
+    numer[obs] = exp(X[obs] * beta) * offset[obs];
+  }
+  for (strata in 1:num_elements(sequence)){
+    denom[strata] = sum(numer[(sequence[strata]): (sequence[strata] + 2)]);
+    prob[strata,] = to_row_vector(numer[(sequence[strata]): (sequence[strata] + 2)]/denom[strata]);
+    Y[(sequence[strata]): (sequence[strata] + 2)] ~ multinomial(to_vector(prob[strata,])); // take advtange of proportionality -- shorthand for multinomial_lupmf()
+  }
+
   // priors
-  // eta ~ gamma(0.001, 0.001);
+  // eta ~ inv_gamma(5, 5);
   // could change based on how correlated we want the daily effects to be (for example drop below 0.05 if 10-14 days apart)
   // idea from H. Chang, but unsure how to execute similarly
-  // phi ~ gamma(0.001, 0.001);
-  // tau ~ gamma(0.001, 0.001);
-  beta ~ multi_normal(mu, Sigma); // beta is a vector of length D*(D+1)/2
+  // phi ~ inv_gamma(5, 5);
+  // tau ~ inv)gamma(5, 5);
+  beta ~ multi_normal(mu, exp(log_Sigma)); // beta is a vector of length D*(D+1)/2
 }
 
