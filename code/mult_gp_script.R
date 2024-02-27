@@ -72,14 +72,25 @@ mult_gp_data <- list(floodzip_id = floodzip_id,
                      mu = mu)
 
 
+options(mc.cores = parallel::detectCores())
+rstan_options(auto_write = TRUE)
+
+sink("/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/run2.txt")
+
 suppressMessages(
 test <- stan(
   file = 'code/mult_gp.stan',  # Stan program
   data = mult_gp_data,    # named list of data
   chains = 1,             # number of Markov chains
-  warmup = 50,          # number of warmup iterations per chain
-  iter = 150,            # total number of iterations per chain
+  warmup = 10,          # number of warmup iterations per chain
+  iter = 60,            # total number of iterations per chain
   cores = 1,              # number of cores (could use one per chain)
 ))
+
+sink()
+
+saveRDS(test, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/run2.rds')
+
+
 
 

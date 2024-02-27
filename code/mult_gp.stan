@@ -28,13 +28,13 @@ data {
 // The parameters accepted by the model.
 parameters {
   // real eta; //non-zero
-  //real phi; // non-zero, lengthscale for d
-  //real tau; // non-zero, lengthscale for t
+  // real phi; // non-zero, lengthscale for d
+  // real tau; // non-zero, lengthscale for t
   vector[num_coeff] beta; // beta is a vector of length D*(D+1)/2
 }
 
-// transformed parameters {
-  // real little_sigma = 1/eta; 
+//transformed parameters {
+  // real little_sigma = 1/eta;
 // }
   
 // The model to be estimated. 
@@ -44,8 +44,8 @@ model {
   vector[N / case_control_set] denom;
   matrix[N / case_control_set, case_control_set] prob;
   // vector[N] lik;
-  //matrix[num_coeff, num_coeff] log_Sigma = log(little_sigma) - 1/phi*Sigma_d - 1/tau*Sigma_t;
-  matrix[num_coeff, num_coeff] log_Sigma = -Sigma_d - Sigma_t; // set this as fixed to understand where issue is
+  // matrix[num_coeff, num_coeff] log_Sigma = log(little_sigma) - 1/phi*Sigma_d - 1/tau*Sigma_t;
+  matrix[num_coeff, num_coeff] log_Sigma = -Sigma_d - Sigma_t; // set as fixed to understand where issue is
   
   //for (strata in 1:num_elements(sequence)){ //no length in STAN 
     //for (obs in (sequence[strata]): (sequence[strata] + 2)){
@@ -61,14 +61,16 @@ model {
   //}
   
   for (obs in 1:N){
-    numer[obs] = exp(X[obs] * beta) * offset[obs];
+    numer[obs] = exp(X[obs] * beta) * offset[obs]; 
   }
   for (strata in 1:num_elements(sequence)){
     denom[strata] = sum(numer[(sequence[strata]): (sequence[strata] + 2)]);
     prob[strata,] = to_row_vector(numer[(sequence[strata]): (sequence[strata] + 2)]/denom[strata]);
-    Y[(sequence[strata]): (sequence[strata] + 2)] ~ multinomial(to_vector(prob[strata,])); // take advtange of proportionality -- shorthand for multinomial_lupmf()
+    // take advtange of proportionality -- shorthand for multinomial_lupmf() which is not available in 2.21
+    // Y[(sequence[strata]): (sequence[strata] + 2)] ~ multinomial(to_vector(prob[strata,])); // how do I make this a product for ALL data?
+    target += multinomial_lpmf(Y[(sequence[strata]): (sequence[strata] + 2)] | to_vector(prob[strata,]));
   }
-
+  
   // priors
   // eta ~ inv_gamma(5, 5);
   // could change based on how correlated we want the daily effects to be (for example drop below 0.05 if 10-14 days apart)
