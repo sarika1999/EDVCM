@@ -82,8 +82,8 @@ test <- stan(
   file = 'code/mult_gp.stan',  # Stan program
   data = mult_gp_data,    # named list of data
   chains = 1,             # number of Markov chains
-  warmup = 10,          # number of warmup iterations per chain
-  iter = 60,            # total number of iterations per chain
+  warmup = 2,          # number of warmup iterations per chain
+  iter = 15333,            # total number of iterations per chain
   cores = 1,              # number of cores (could use one per chain)
 ))
 
