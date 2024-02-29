@@ -3,13 +3,13 @@ setwd('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial
 
 suppressMessages(library(tidyverse))
 
-dat <- readRDS('data/events_with_matched_controls_nolag_df_v3.rds')
+dat <- readRDS('data/test_data_150floodzips.rds')
 dat <- dat %>% arrange(floodzip_id,zipcode,month,day,control_indicator) #order to match paper 
 
 library(rstan)
 
-floodzip_id <- length(unique(dat$floodzip_id))
-case_control_set <- length(unique(dat$control_indicator))
+floodzip_id <- length(unique(dat$floodzip_id)) %>% as.double()
+case_control_set <- length(unique(dat$control_indicator)) %>% as.double()
 
 durations <- dat %>% group_by(floodzip_id) %>% summarise(durations = unique(d)) %>% select(durations) %>% unname() %>% unlist()
 D <- max(durations)
@@ -27,15 +27,15 @@ Y <- dat$cases
 #create X matrix: define as 0, then figure out which columns exposure is in based on values of "d" and "t"
 #note: only every 3rd row is an event
 
-#X <- matrix(data = 0, nrow = nrow(dat), ncol = num_coeff) 
-#exposure_mapped <- apply(dat, 1, function(i) {t <- as.numeric(i[10]); d <- as.numeric(i[11]); d*(d-1)/2+t})[seq(1,N, by = 3)]
-#sequence <- seq(1,N, by = 3)
+# X <- matrix(data = 0, nrow = nrow(dat), ncol = num_coeff)
+# exposure_mapped <- apply(dat, 1, function(i) {t <- as.numeric(i[10]); d <- as.numeric(i[11]); d*(d-1)/2+t})[seq(1,N, by = 3)]
+# sequence <- seq(1,N, by = 3)
 # for (i in 1:length(sequence)){
 #   X[sequence[i],exposure_mapped[i]] <- 1
 # }
-# saveRDS(X, "X.rds")
+# saveRDS(X, "/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/X_testdata_150floodzips.rds")
 
-X <- readRDS('data/X_longformat.rds')
+X <- readRDS('data/X_testdata_150floodzips.rds')
 
 offset <- dat$population
 
@@ -57,8 +57,8 @@ sequence <- seq(1, N, by = 3)
 
 mu <- rep(0, num_coeff)
 
-mult_gp_data <- list(floodzip_id = floodzip_id, 
-                     case_control_set = case_control_set, 
+mult_gp_data <- list(floodzip_id = floodzip_id,
+                     case_control_set = case_control_set,
                      durations = durations,
                      D = D,
                      num_coeff = num_coeff,
@@ -75,21 +75,19 @@ mult_gp_data <- list(floodzip_id = floodzip_id,
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
 
-sink("/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/run2.txt")
+#sink("/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/run2.txt")
 
 suppressMessages(
 test <- stan(
   file = 'code/mult_gp.stan',  # Stan program
   data = mult_gp_data,    # named list of data
-  chains = 1,             # number of Markov chains
-  warmup = 2,          # number of warmup iterations per chain
-  iter = 15333,            # total number of iterations per chain
-  cores = 1,              # number of cores (could use one per chain)
 ))
+  
+print(test)
 
-sink()
+#sink()
 
-saveRDS(test, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/run2.rds')
+#saveRDS(test, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/run2.rds')
 
 
 

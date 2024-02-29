@@ -25,50 +25,62 @@ data {
 }
 
 transformed data {
-  matrix[num_coeff, num_coeff] log_Sigma = -Sigma_d - Sigma_t; // set as fixed to understand where issue is
+  matrix[num_coeff, num_coeff] log_Sigma; // set as fixed to understand where issue is
+  log_Sigma = -Sigma_d - Sigma_t;
 }
 
 // The parameters accepted by the model.
 parameters {
-  // real eta; // non-zero 
+  real little_sigma; // non-zero 
   // real phi; // non-zero, lengthscale for d
   // real tau; // non-zero, lengthscale for t
   vector[num_coeff] beta; // beta is a vector of length D*(D+1)/2
 }
 
 transformed parameters {
-  // real little_sigma = 1/eta; 
-  vector[N] numer; 
-  vector[N / case_control_set] denom;
-  matrix[N / case_control_set, case_control_set] prob;
+  // note: 'numer', 'denom', and 'prob' get sampled (could be slower); 
+  // vector[N] numer; 
+  // vector[N / case_control_set] denom;
+  
+  vector[N] log_numer;
+  vector[N / case_control_set] log_denom;
+  simplex[case_control_set] prob[N/case_control_set]; 
+  
+  //for (obs in 1:N){
+    //numer[obs] = exp(X[obs] * beta) * offset[obs]; 
+  //}
   
   for (obs in 1:N){
-    numer[obs] = exp(X[obs] * beta) * offset[obs]; 
+    log_numer[obs] = X[obs] * beta + log(offset[obs]); 
   }
+  
+  //for (strata in 1:num_elements(sequence)){
+    //RACHEL :: not sure about this but, instead of '+2' in the rows below, for the general case shouldn't it be '+case_control_set'
+    //denom[strata] = sum(numer[(sequence[strata]): (sequence[strata]+ 2)]); // compute denominator for each observation in a strata only once
+    //prob[strata] = numer[(sequence[strata]): (sequence[strata] + 2)]/denom[strata]; // divide for each observation and save probabilities in a column of matrix
+    //Y[(sequence[strata]): (sequence[strata] + 2)] ~ multinomial(to_vector(prob[strata,])); // needs to be a product for ALL data
+  //}
   
   for (strata in 1:num_elements(sequence)){
     // RACHEL :: not sure about this but, instead of '+2' in the rows below, for the general case shouldn't it be '+case_control_set'
-    denom[strata] = sum(numer[(sequence[strata]): (sequence[strata] + 2)]); // compute denominator for each observation in a strata only once 
-    prob[strata,] = to_row_vector(numer[(sequence[strata]): (sequence[strata] + 2)]/denom[strata]); // divide for each observation and save probabilities in a row of matrix
+    log_denom[strata] = log_sum_exp(log_numer[(sequence[strata]): (sequence[strata] + 2)]); // compute denominator for each observation in a strata only once
+    prob[strata] = exp(log_numer[(sequence[strata]): (sequence[strata] + 2)] - log_denom[strata]); // divide for each observation and save probabilities in a column of matrix
+    // Y[(sequence[strata]): (sequence[strata] + 2)] ~ multinomial(to_vector(prob[strata,])); // needs to be a product for ALL data
   }
+  
+  // matrix[num_coeff, num_coeff] Sigma = little_sigma*exp(-1/phi*Sigma_d + (-1/tau*Sigma_t)) where Sigma_d[i,j] = |d_i - d_j|, Sigma_t[i,j] = |t_i - t_j|
+  matrix[num_coeff, num_coeff] log_Sigma2 = log_Sigma + log(little_sigma);
 }
   
 model {
-  // matrix[num_coeff, num_coeff] Sigma = little_sigma*exp(-1/phi*Sigma_d + (-1/tau*Sigma_t)) where Sigma_d[i,j] = |d_i - d_j|, Sigma_t[i,j] = |t_i - t_j|
-  // matrix[num_coeff, num_coeff] log_Sigma = log(little_sigma) - 1/phi*Sigma_d - 1/tau*Sigma_t;
-  
   // likelihood 
   for (strata in 1:num_elements(sequence)){
-    // Y[(sequence[strata]): (sequence[strata] + 2)] ~ multinomial(to_vector(prob[strata,])); // needs to be a product for ALL data 
-    // multinomial_lupmf() is not available in 2.21
-    target += multinomial_lpmf(Y[(sequence[strata]): (sequence[strata] + 2)] | to_vector(prob[strata,])); // sum over log pmf by strata 
+    target += multinomial_lupmf(Y[(sequence[strata]): (sequence[strata] + 2)] | prob[strata]); // sum over log pmf by strata up to additive constants
   }
-  
-  // priors
-  // eta ~ inv_gamma(5, 5); 
-  // phi ~ inv_gamma(5, 5);
-  // tau ~ inv)gamma(5, 5);
-  // RACHEL :: to further de-bug, you could try just putting independent standard normal priors on the betas and see if it runs properly
-  beta ~ multi_normal(mu, exp(log_Sigma)); // beta is a vector of length D*(D+1)/2
-}
 
+  // priors
+  little_sigma ~ gamma(1,1); 
+  // phi ~ inv_gamma(5,5);
+  // tau ~ inv_gamma(5,5);
+  beta ~ multi_normal(mu, exp(log_Sigma2)); // beta is a vector of length D*(D+1)/2
+}
