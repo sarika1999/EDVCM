@@ -3,7 +3,7 @@ setwd('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial
 
 suppressMessages(library(tidyverse))
 
-dat <- readRDS('data/test_data_150floodzips.rds')
+dat <- readRDS('data/test_data.rds')
 dat <- dat %>% arrange(floodzip_id,zipcode,month,day,control_indicator) #order to match paper 
 
 library(rstan)
@@ -35,7 +35,7 @@ Y <- dat$cases
 # }
 # saveRDS(X, "/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/X_testdata_150floodzips.rds")
 
-X <- readRDS('data/X_testdata_150floodzips.rds')
+X <- readRDS('data/X_testdata.rds')
 
 offset <- dat$population
 
@@ -52,7 +52,6 @@ for (i in 1:num_coeff) {
   }
 }
 
-#sum_Y <- c(rowsum(Y,rep(1:(length(Y)/3),each=case_control_set)))
 sequence <- seq(1, N, by = 3)
 
 mu <- rep(0, num_coeff)
@@ -82,12 +81,17 @@ test <- stan(
   file = 'code/mult_gp.stan',  # Stan program
   data = mult_gp_data,    # named list of data
 ))
-  
-print(test)
 
 #sink()
 
 #saveRDS(test, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/run2.rds')
+  
+print(test)
+
+pairs(test, pars = c("beta", "little_sigma", "lp__"))
+
+
+
 
 
 

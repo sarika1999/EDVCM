@@ -18,7 +18,6 @@ data {
   matrix[num_coeff,num_coeff] Sigma_t;
   
   // N should be exactly divisible by case_control_set to produce an integer
-  // int<lower=0> sum_Y[N / case_control_set]; // obtain sum of cases for every strata (i.e three rows)
   int<lower=1> sequence[N / case_control_set]; // generate a sequence of numbers to indicate the start of a new strata (i.e. every three rows)
   
   vector[num_coeff] mu; // mu is a vector of length D*(D+1)/2
@@ -50,22 +49,20 @@ transformed parameters {
     //numer[obs] = exp(X[obs] * beta) * offset[obs]; 
   //}
   
-  for (obs in 1:N){
-    log_numer[obs] = X[obs] * beta + log(offset[obs]); 
-  }
-  
   //for (strata in 1:num_elements(sequence)){
     //RACHEL :: not sure about this but, instead of '+2' in the rows below, for the general case shouldn't it be '+case_control_set'
     //denom[strata] = sum(numer[(sequence[strata]): (sequence[strata]+ 2)]); // compute denominator for each observation in a strata only once
     //prob[strata] = numer[(sequence[strata]): (sequence[strata] + 2)]/denom[strata]; // divide for each observation and save probabilities in a column of matrix
-    //Y[(sequence[strata]): (sequence[strata] + 2)] ~ multinomial(to_vector(prob[strata,])); // needs to be a product for ALL data
   //}
+  
+  for (obs in 1:N){
+    log_numer[obs] = X[obs] * beta + log(offset[obs]); 
+  }
   
   for (strata in 1:num_elements(sequence)){
     // RACHEL :: not sure about this but, instead of '+2' in the rows below, for the general case shouldn't it be '+case_control_set'
     log_denom[strata] = log_sum_exp(log_numer[(sequence[strata]): (sequence[strata] + 2)]); // compute denominator for each observation in a strata only once
     prob[strata] = exp(log_numer[(sequence[strata]): (sequence[strata] + 2)] - log_denom[strata]); // divide for each observation and save probabilities in a column of matrix
-    // Y[(sequence[strata]): (sequence[strata] + 2)] ~ multinomial(to_vector(prob[strata,])); // needs to be a product for ALL data
   }
   
   // matrix[num_coeff, num_coeff] Sigma = little_sigma*exp(-1/phi*Sigma_d + (-1/tau*Sigma_t)) where Sigma_d[i,j] = |d_i - d_j|, Sigma_t[i,j] = |t_i - t_j|
@@ -79,7 +76,7 @@ model {
   }
 
   // priors
-  little_sigma ~ gamma(1,1); 
+  little_sigma ~ inv_gamma(5,5); // parameters for covariance cause Sigma to not be symmetric (?) 
   // phi ~ inv_gamma(5,5);
   // tau ~ inv_gamma(5,5);
   beta ~ multi_normal(mu, exp(log_Sigma2)); // beta is a vector of length D*(D+1)/2
