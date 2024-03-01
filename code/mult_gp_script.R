@@ -1,10 +1,9 @@
 setwd('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/') #cluster 
-#setwd('~/Desktop/multinomial_GP/') #local
 
 suppressMessages(library(tidyverse))
 
 dat <- readRDS('data/test_data.rds')
-dat <- dat %>% arrange(floodzip_id,zipcode,month,day,control_indicator) #order to match paper 
+dat <- dat %>% arrange(floodzip_id,zipcode,month,day,control_indicator) #order to match Barrera-Gomez paper 
 
 library(rstan)
 
@@ -33,7 +32,7 @@ Y <- dat$cases
 # for (i in 1:length(sequence)){
 #   X[sequence[i],exposure_mapped[i]] <- 1
 # }
-# saveRDS(X, "/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/X_testdata_150floodzips.rds")
+# saveRDS(X, "/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/X_testdata.rds")
 
 X <- readRDS('data/X_testdata.rds')
 
@@ -74,7 +73,7 @@ mult_gp_data <- list(floodzip_id = floodzip_id,
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
 
-#sink("/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/run2.txt")
+#sink("/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/run.txt")
 
 suppressMessages(
 test <- stan(
@@ -84,10 +83,9 @@ test <- stan(
 
 #sink()
 
-#saveRDS(test, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/run2.rds')
+#saveRDS(test, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/run.rds')
   
-print(test)
-
+print(test, pars = c("beta", "little_sigma", "lp__"))
 pairs(test, pars = c("beta", "little_sigma", "lp__"))
 
 
