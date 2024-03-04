@@ -84,8 +84,8 @@ test <- stan(
 
 saveRDS(test, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/run.rds')
   
-print(test, pars = c("beta", "little_sigma", "phi", "tau", "lp__"))
-pairs(test, pars = c("beta", "little_sigma", "phi", "tau", "lp__"))
+print(test, pars = c("beta", "little_sigma2", "phi", "tau", "lp__"))
+pairs(test, pars = c("beta", "little_sigma2", "phi", "tau", "lp__"))
 
 
 
