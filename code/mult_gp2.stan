@@ -31,18 +31,10 @@ parameters {
   vector[num_coeff] beta; // beta is a vector of length D*(D+1)/2
 }
 
-transformed parameters {
+//transformed parameters {
   // note: 'numer', 'denom', 'prob', and 'Sigma' get sampled; 
   // vector[N] numer; 
   // vector[N / case_control_set] denom;
-  
-  cov_matrix[num_coeff] Sigma;
-  vector[N] log_numer;
-  vector[N / case_control_set] log_denom;
-  simplex[case_control_set] prob[N/case_control_set]; 
-  
-  // matrix[num_coeff, num_coeff] Sigma = little_sigma*exp(-1/phi*Sigma_d + (-1/tau*Sigma_t)); where Sigma_d[i,j] = |d_i - d_j|, Sigma_t[i,j] = |t_i - t_j|
-  Sigma = exp((-1/phi)*Sigma_d + (-1/tau)*Sigma_t + log(little_sigma2)); 
   
   //for (obs in 1:N){
     //numer[obs] = exp(X[obs] * beta) * offset[obs]; 
@@ -53,6 +45,16 @@ transformed parameters {
     //denom[strata] = sum(numer[(sequence[strata]): (sequence[strata]+ 2)]); // compute denominator for each observation in a strata only once
     //prob[strata] = numer[(sequence[strata]): (sequence[strata] + 2)]/denom[strata]; // divide for each observation and save probabilities in a column of matrix
   //}
+//}
+  
+model {
+  matrix[num_coeff, num_coeff] Sigma;
+  vector[N] log_numer;
+  vector[N / case_control_set] log_denom;
+  simplex[case_control_set] prob[N/case_control_set]; 
+  
+  // matrix[num_coeff, num_coeff] Sigma = little_sigma*exp(-1/phi*Sigma_d + (-1/tau*Sigma_t)); where Sigma_d[i,j] = |d_i - d_j|, Sigma_t[i,j] = |t_i - t_j|
+  Sigma = exp((-1/phi)*Sigma_d + (-1/tau)*Sigma_t + log(little_sigma2)); 
   
   for (obs in 1:N){
     log_numer[obs] = X[obs] * beta + log(offset[obs]); 
@@ -63,16 +65,14 @@ transformed parameters {
     log_denom[strata] = log_sum_exp(log_numer[(sequence[strata]): (sequence[strata] + 2)]); // compute denominator for each observation in a strata only once
     prob[strata] = exp(log_numer[(sequence[strata]): (sequence[strata] + 2)] - log_denom[strata]); // divide for each observation and save probabilities in a column of matrix
   }
-}
   
-model {
   // likelihood 
   for (strata in 1:num_elements(sequence)){
     target += multinomial_lupmf(Y[(sequence[strata]): (sequence[strata] + 2)] | prob[strata]); // sum over log pmf by strata up to additive constants
   }
 
   // priors
-  little_sigma2 ~ inv_gamma(5,5); // parameters for covariance cause Sigma to not be symmetric/positive definite, but it still samples (?) 
+  little_sigma2 ~ inv_gamma(5,5);
   phi ~ inv_gamma(5,5);
   tau ~ inv_gamma(5,5);
   beta ~ multi_normal(mu, Sigma); // beta is a vector of length D*(D+1)/2

@@ -37,7 +37,7 @@ parameters {
 }
 
 transformed parameters {
-  // note: 'numer', 'denom', and 'prob' get sampled (could be slower); 
+  // note: 'numer', 'denom', and 'prob' get sampled; 
   // vector[N] numer; 
   // vector[N / case_control_set] denom;
   
