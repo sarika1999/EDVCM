@@ -48,10 +48,10 @@ parameters {
 //}
   
 model {
-  matrix[num_coeff, num_coeff] Sigma;
+  matrix[num_coeff, num_coeff] Sigma; // cannot define cov_matrix in model block
   vector[N] log_numer;
   vector[N / case_control_set] log_denom;
-  simplex[case_control_set] prob[N/case_control_set]; 
+  matrix[case_control_set, N/case_control_set] prob; // cannot define simplex in model block
   
   // matrix[num_coeff, num_coeff] Sigma = little_sigma*exp(-1/phi*Sigma_d + (-1/tau*Sigma_t)); where Sigma_d[i,j] = |d_i - d_j|, Sigma_t[i,j] = |t_i - t_j|
   Sigma = exp((-1/phi)*Sigma_d + (-1/tau)*Sigma_t + log(little_sigma2)); 
@@ -63,12 +63,12 @@ model {
   for (strata in 1:num_elements(sequence)){
     // RACHEL :: not sure about this but, instead of '+2' in the rows below, for the general case shouldn't it be '+case_control_set'
     log_denom[strata] = log_sum_exp(log_numer[(sequence[strata]): (sequence[strata] + 2)]); // compute denominator for each observation in a strata only once
-    prob[strata] = exp(log_numer[(sequence[strata]): (sequence[strata] + 2)] - log_denom[strata]); // divide for each observation and save probabilities in a column of matrix
+    prob[,strata] = exp(log_numer[(sequence[strata]): (sequence[strata] + 2)] - log_denom[strata]); // divide for each observation and save probabilities in a column of matrix
   }
   
   // likelihood 
   for (strata in 1:num_elements(sequence)){
-    target += multinomial_lupmf(Y[(sequence[strata]): (sequence[strata] + 2)] | prob[strata]); // sum over log pmf by strata up to additive constants
+    target += multinomial_lupmf(Y[(sequence[strata]): (sequence[strata] + 2)] | prob[,strata]); // sum over log pmf by strata up to additive constants
   }
 
   // priors
