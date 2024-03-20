@@ -1,4 +1,6 @@
 # simulation to confirm that sampler recovers the true beta 
+# do not assume same number of total cases in each strata 
+# assume all beta are the same across d,t
 
 setwd('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/') #cluster 
 
@@ -48,8 +50,11 @@ for (strata in 1:length(sequence)){
   prob[,strata] = exp(log_numer[(sequence[strata]): (sequence[strata] + 2)] - log_denom[strata])
 }
 
+set.seed(1999)
+sample_size <- sample((1:50), length(sequence), replace = TRUE)
+  
 for (strata in 1:length(sequence)){
-  Y[(sequence[strata]): (sequence[strata] + 2)] <- rmultinom(1, size = 25, prob = prob[,strata])
+  Y[(sequence[strata]): (sequence[strata] + 2)] <- rmultinom(n = 1, size = sample_size[strata], prob = prob[,strata])
 }
 
 dat$cases <- Y
@@ -90,17 +95,17 @@ rstan_options(auto_write = TRUE)
 
 suppressMessages(
   test <- stan(
-    file = 'code/mult_gp2.stan',  # Stan program
+    file = 'code/mult_gp.stan',  # Stan program
     data = mult_gp_data,    # named list of data
     chains = 4, 
     warmup = 500,
     iter = 2000
   ))
 
-saveRDS(test, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/allfloodzips_dur3_simulation1.rds')
+saveRDS(test, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/allfloodzips_dur3_simulation2.rds')
 
-print(test, pars = c("beta", "little_sigma2", "phi", "tau", "lp__"))
-pairs(test, pars = c("beta", "little_sigma2", "phi", "tau", "lp__"))
+#print(test, pars = c("beta", "little_sigma2", "phi", "tau", "lp__"))
+#pairs(test, pars = c("beta", "little_sigma2", "phi", "tau", "lp__"))
 
 
 

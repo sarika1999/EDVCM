@@ -73,20 +73,19 @@ mult_gp_data <- list(floodzip_id = floodzip_id,
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
 
-#sink("/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/run.txt")
-
 suppressMessages(
 test <- stan(
   file = 'code/mult_gp.stan',  # Stan program
   data = mult_gp_data,    # named list of data
+  chains = 4, 
+  warmup = 500,
+  iter = 2000
 ))
-
-#sink()
 
 saveRDS(test, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/run.rds')
   
-#print(test, pars = c("beta", "lp__"))
-pairs(test, pars = c("beta", "lp__"))
+print(test, pars = c("beta", "little_sigma2", "phi", "tau", "lp__"))
+pairs(test, pars = c("beta", "little_sigma2", "phi", "tau", "lp__"))
 
 
 

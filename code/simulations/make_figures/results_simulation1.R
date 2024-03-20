@@ -1,7 +1,7 @@
 #simulation results
 
 library(rstan)
-test <- readRDS('~/Downloads/allfloodzips_dur3_simulation1.rds')
+test <- readRDS('~/Desktop/multinomial_gp/output/simulations/allfloodzips_dur3_simulation1.rds')
 
 print(test, pars = c("beta", "little_sigma2", "phi", "tau", "lp__"))
 pairs(test, pars = c("beta", "little_sigma2", "phi", "tau", "lp__"))
