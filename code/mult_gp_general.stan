@@ -47,7 +47,7 @@ model {
   
   for (strata in 1:(num_elements(sequence))){
     log_denom[strata] = log_sum_exp(log_numer[(sequence[strata]): (sequence[strata] + rows_per_strata[strata] - 1)]); // compute denominator for each observation in a strata only once
-    prob[(sequence[strata]): (sequence[strata] + rows_per_strata[strata] - 1)] = exp(log_numer[(sequence[strata]): (sequence[strata] + rows_per_strata[strata] - 1)] - log_denom[strata]); // divide for each observation and save probabilities in a column of matrix
+    prob[(sequence[strata]): (sequence[strata] + rows_per_strata[strata] - 1)] = exp(log_numer[(sequence[strata]): (sequence[strata] + rows_per_strata[strata] - 1)] - log_denom[strata]); // divide for each observation and save probabilities 
   }
   
   // likelihood 

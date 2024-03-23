@@ -23,26 +23,43 @@ for (k in 1:floodzip_id){
   N = N + rows_per_strata[k]
 } 
 
-Y <- dat$cases
-
 #obtain starting point for each new strata 
 floodzip_id_dat <- dat %>% select(-c(2:11)) %>% mutate(index = row_number()) 
 sequence <- which(floodzip_id_dat$index == 1)
 
-#create X matrix: define as 0, then figure out which columns exposure is in based on values of "d" and "t"
-#note: only every 3rd row is an event
-
-# X <- matrix(data = 0, nrow = nrow(dat), ncol = num_coeff)
-# exposure_mapped <- apply(dat, 1, function(i) {t <- as.numeric(i[10]); d <- as.numeric(i[11]); d*(d-1)/2+t})[seq(1,N, by = 3)]
-# sequence <- seq(1,N, by = 3)
-# for (i in 1:length(sequence)){
-#   X[sequence[i],exposure_mapped[i]] <- 1
-# }
-# saveRDS(X, "/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/X_testdata_175floodzips.rds")
-
 X <- readRDS('data/X_testdata_175floodzips.rds')
 
 offset <- dat$population
+
+beta <- rep(10, num_coeff)
+
+log_numer <- vector()
+
+for (obs in 1:N){
+  log_numer[obs] = X[obs,] %*% beta + log(offset[obs]); 
+}
+
+log_denom <- vector()
+prob <- vector()
+Y <- vector()
+
+library(matrixStats)
+
+for (strata in 1:length(sequence)){
+  log_denom[strata] = logSumExp(log_numer[(sequence[strata]): (sequence[strata] + rows_per_strata[strata] - 1)])
+  prob[(sequence[strata]): (sequence[strata] + rows_per_strata[strata] - 1)] = exp(log_numer[(sequence[strata]): (sequence[strata] + rows_per_strata[strata] - 1)] - log_denom[strata])
+}
+
+set.seed(1999)
+sample_size <- sample((1:50), length(sequence), replace = TRUE)
+
+for (strata in 1:length(sequence)){
+  Y[(sequence[strata]): (sequence[strata] + rows_per_strata[strata] - 1)] <- rmultinom(n = 1, 
+                                                                                       size = sample_size[strata], 
+                                                                                       prob = prob[(sequence[strata]): (sequence[strata] + rows_per_strata[strata] - 1)])
+}
+
+dat$cases <- Y
 
 Sigma_d <- matrix(NA, nrow = num_coeff, ncol = num_coeff)
 Sigma_t <- matrix(NA, nrow = num_coeff, ncol = num_coeff)
@@ -74,6 +91,7 @@ mult_gp_data <- list(floodzip_id = floodzip_id,
                      sequence = sequence,
                      mu = mu)
 
+rm(beta, log_numer, log_denom, prob)
 
 options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = TRUE)
@@ -87,7 +105,7 @@ test <- stan(
   iter = 2000
 ))
 
-saveRDS(test, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/simulations/run1_general.rds')
+saveRDS(test, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/simulations/175floodzips_dur3_general_simulation1.rds')
   
 print(test, pars = c("beta", "little_sigma2", "phi", "tau", "lp__"))
 pairs(test, pars = c("beta", "little_sigma2", "phi", "tau", "lp__"))

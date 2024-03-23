@@ -32,7 +32,7 @@ Y <- dat$cases
 # for (i in 1:length(sequence)){
 #   X[sequence[i],exposure_mapped[i]] <- 1
 # }
-# saveRDS(X, "/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/X_testdata_150floodzips.rds")
+# saveRDS(X, "/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/X_testdata_175floodzips.rds")
 
 X <- readRDS('data/X_testdata.rds')
 
