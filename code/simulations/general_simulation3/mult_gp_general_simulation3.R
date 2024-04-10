@@ -33,21 +33,15 @@ options(mc.cores = parallel::detectCores())
 rstan_options(auto_write = FALSE)
 
 suppressMessages(
-  test <- stan(
-    file = 'code/mult_gp_general_simulation3.stan',  # Stan program
-    data = mult_gp_data,    # named list of data
-    chains = 4, 
-    iter = 2000
+test <- stan(
+  file = 'code/mult_gp_general_simulation3.stan',  # Stan program
+  data = mult_gp_data,    # named list of data
+  chains = 1, 
+  iter = 500
 ))
 
 #saveRDS(test, paste0('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/simulations/general_simulation3/allfloodzips_dur3', sim_val, '.rds'))
 
-beta_posterior <- as.data.frame(test) %>% select(-c("lp__")) %>% rename("beta[1][1]" = "beta[1]",
-                                                                        "beta[2][1]" = "beta[2]",
-                                                                        "beta[2][2]" = "beta[3]",
-                                                                        "beta[3][1]" = "beta[4]",
-                                                                        "beta[3][2]" = "beta[5]",
-                                                                        "beta[3][3]" = "beta[6]")
+beta_posterior <- as.data.frame(test) %>% select(-c("lp__"))
 
-write.csv(beta_posterior, paste0('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/simulations/general_simulation3/allfloodzips_dur3', sim_val, '.csv'))
-
+write.csv(beta_posterior, paste0('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/simulations/general_simulation3/allfloodzips_dur3_', sim_val, '.csv'))
