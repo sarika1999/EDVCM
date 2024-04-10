@@ -46,6 +46,8 @@ data_setup <- function(path_to_data, phi, tau, little_sigma2){
   
   X <- readRDS(paste0(path_to_data, '/X_testdata.rds'))
   
+  mu <- rep(0, num_coeff)
+  
   return(list(floodzip_id = floodzip_id,
               case_control_set = case_control_set,
               durations = durations,
@@ -56,7 +58,8 @@ data_setup <- function(path_to_data, phi, tau, little_sigma2){
               sequence = sequence,
               X = X,
               offset = offset,
-              Sigma = Sigma))
+              Sigma = Sigma,
+              mu = mu))
 }
 
 simulate_beta <- function(mu, Sigma){
@@ -114,18 +117,18 @@ data <- data_setup(path_to_data = '/n/dominici_nsaph_l3/Lab/projects/floods-hosp
 
 saveRDS(data, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/general_simulation3/allfloodzips_dur3_mult_gp_general_simulation3.rds')
 
-true_beta <- simulate_beta(mu = rep(0, data$num_coeff),
+true_beta <- simulate_beta(mu = data$mu,
                            Sigma = data$Sigma)
 
 saveRDS(true_beta, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/general_simulation3/allfloodzips_dur3_true_beta_general_simulation3.rds')
 
-prob <- get_prob(N = N,
-                 X = X,
+prob <- get_prob(N = data$N,
+                 X = data$X,
                  beta = true_beta, 
-                 offset = offset,
-                 sequence = sequence,
-                 strata = strata,
-                 rows_per_strata = rows_per_strata)
+                 offset = data$offset,
+                 sequence = data$sequence,
+                 strata = data$strata,
+                 rows_per_strata = data$rows_per_strata)
 
 nsim <- 1000
 Y_mat <- matrix(data = NA, nrow = data$N, ncol = nsim)

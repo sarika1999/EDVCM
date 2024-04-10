@@ -12,25 +12,25 @@ suppressMessages(library(tidyverse))
 data <- readRDS('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/general_simulation3/allfloodzips_dur3_mult_gp_general_simulation3.rds')
 Y <- readRDS('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/general_simulation3/allfloodzips_dur3_Y_general_simulation3.rds')
 
-mult_gp_data <- list(floodzip_id = floodzip_id,
-                     case_control_set = case_control_set,
-                     durations = durations,
-                     D = D,
-                     num_coeff = num_coeff,
-                     N = N,
-                     rows_per_strata = rows_per_strata,
+mult_gp_data <- list(floodzip_id = data$floodzip_id,
+                     case_control_set = data$case_control_set,
+                     durations = data$durations,
+                     D = data$D,
+                     num_coeff = data$num_coeff,
+                     N = data$N,
+                     rows_per_strata = data$rows_per_strata,
                      Y = Y[,sim_val],
-                     X = X,
-                     offset = offset,
-                     Sigma = Sigma,
-                     sequence = sequence,
-                     mu = mu)
+                     X = data$X,
+                     offset = data$offset,
+                     Sigma = data$Sigma,
+                     sequence = data$sequence,
+                     mu = data$mu)
 
 
 library(rstan)
 
 options(mc.cores = parallel::detectCores())
-rstan_options(auto_write = TRUE)
+rstan_options(auto_write = FALSE)
 
 suppressMessages(
   test <- stan(

@@ -1,4 +1,4 @@
-// March 2024
+// April 2024
 // Multinomial (conditional poisson) with GP prior with mean 'mu' and
 // standard deviation 'Sigma' (product of exponential kernels in two dimension).
 
@@ -48,8 +48,5 @@ model {
   }
 
   // priors
-  little_sigma2 ~ inv_gamma(5,5);
-  phi ~ inv_gamma(5,5);
-  tau ~ inv_gamma(5,5);
   beta ~ multi_normal(mu, Sigma); // beta is a vector of length D*(D+1)/2
 }
