@@ -5,7 +5,7 @@ setwd('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial
 
 suppressMessages(library(tidyverse))
 
-data_setup <- function(path_to_data, phi, tau, little_sigma2){
+data_setup <- function(path_to_data, little_sigma2, phi, tau){
   dat <- readRDS(paste0(path_to_data, '/test_data.rds'))
   dat <- dat %>% arrange(floodzip_id,zipcode,month,day,control_indicator) #order to match paper 
   floodzip_id <- length(unique(dat$floodzip_id)) %>% as.double()
@@ -58,9 +58,12 @@ data_setup <- function(path_to_data, phi, tau, little_sigma2){
               sequence = sequence,
               X = X,
               offset = offset,
-              Sigma = Sigma,
-              mu = mu))
+              Sigma_d = Sigma_d,
+              Sigma_t = Sigma_t,
+              mu = mu,
+              Sigma = Sigma))
 }
+
 
 simulate_beta <- function(mu, Sigma){
   
@@ -70,6 +73,7 @@ simulate_beta <- function(mu, Sigma){
   
   return(true_beta)
 }
+
 
 get_prob <- function(N, X, beta, offset, sequence, strata, rows_per_strata){
   
@@ -109,17 +113,22 @@ get_case_counts <- function(sequence, strata, rows_per_strata, prob){
   return(Y)
 }
 
-data <- data_setup(path_to_data = '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data', 
-                   phi = 0.5, 
-                   tau = 0.5,
-                   little_sigma2 = 0.2)
+simulation <- 4
+data_dir <- paste0('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/simulations/general_simulation', simulation, '/')
+ifelse(!dir.exists(data_dir), dir.create(data_dir, recursive=TRUE), FALSE)
 
-saveRDS(data, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/general_simulation3/allfloodzips_dur3_mult_gp_general_simulation3.rds')
+data <- data_setup(path_to_data = '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data', 
+                   little_sigma2 = 0.2,
+                   phi = 0.5, 
+                   tau = 0.5)
 
 true_beta <- simulate_beta(mu = data$mu,
                            Sigma = data$Sigma)
 
-saveRDS(true_beta, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/general_simulation3/allfloodzips_dur3_true_beta_general_simulation3.rds')
+data$Sigma <- NULL 
+saveRDS(data, paste0(data_dir, 'allfloodzips_dur3_mult_gp_general_simulation', simulation, '.rds'))
+
+saveRDS(true_beta, paste0(data_dir, 'allfloodzips_dur3_true_beta_general_simulation', simulation, '.rds'))
 
 prob <- get_prob(N = data$N,
                  X = data$X,
@@ -138,7 +147,7 @@ for (i in 1:nsim){
                                prob = prob)
 }
 
-saveRDS(Y_mat, '/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/general_simulation3/allfloodzips_dur3_Y_general_simulation3.rds') 
+saveRDS(Y_mat, paste0(data_dir, '/allfloodzips_dur3_Y_general_simulation', simulation,'.rds'))
 
 
 

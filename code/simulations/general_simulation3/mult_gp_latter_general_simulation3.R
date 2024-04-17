@@ -3,7 +3,7 @@
 
 # arguments from Rscript
 args <- commandArgs(trailingOnly=TRUE)
-sim_val = as.numeric(args[1]) #1-nsim
+sim_val = as.numeric(args[1]) + 5000 #1-nsim
 
 setwd('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/') #cluster 
 
@@ -48,5 +48,3 @@ colnames(beta_posterior) <- c("beta1", "beta2", "beta3", "beta4", "beta5", "beta
 write.csv(beta_posterior, 
           paste0('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/simulations/general_simulation3/allfloodzips_dur3_', sim_val, '.csv'),
           row.names=FALSE)
-
-
