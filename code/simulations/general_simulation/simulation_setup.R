@@ -6,7 +6,7 @@ setwd('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial
 suppressMessages(library(tidyverse))
 
 data_setup <- function(path_to_data, little_sigma2, phi, tau){
-  dat <- readRDS(paste0(path_to_data, '/test_data.rds'))
+  dat <- readRDS(paste0(path_to_data, '/test_data_no_dur2.rds'))
   dat <- dat %>% arrange(floodzip_id,zipcode,month,day,control_indicator) #order to match paper 
   floodzip_id <- length(unique(dat$floodzip_id)) %>% as.double()
   case_control_set <- length(unique(dat$control_indicator)) %>% as.double()
@@ -44,7 +44,7 @@ data_setup <- function(path_to_data, little_sigma2, phi, tau){
   
   Sigma = exp((-1/phi)*Sigma_d + (-1/tau)*Sigma_t + log(little_sigma2))
   
-  X <- readRDS(paste0(path_to_data, '/X_testdata.rds'))
+  X <- readRDS(paste0(path_to_data, '/X_testdata_no_dur2.rds'))
   
   mu <- rep(0, num_coeff)
   
@@ -113,7 +113,7 @@ get_case_counts <- function(sequence, strata, rows_per_strata, prob){
   return(Y)
 }
 
-simulation <- 4
+simulation <- 5
 data_dir <- paste0('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/simulations/general_simulation', simulation, '/')
 ifelse(!dir.exists(data_dir), dir.create(data_dir, recursive=TRUE), FALSE)
 
@@ -126,9 +126,9 @@ true_beta <- simulate_beta(mu = data$mu,
                            Sigma = data$Sigma)
 
 data$Sigma <- NULL 
-saveRDS(data, paste0(data_dir, 'allfloodzips_dur3_mult_gp_general_simulation', simulation, '.rds'))
+saveRDS(data, paste0(data_dir, 'allfloodzips_no_dur2_mult_gp_general_simulation', simulation, '.rds'))
 
-saveRDS(true_beta, paste0(data_dir, 'allfloodzips_dur3_true_beta_general_simulation', simulation, '.rds'))
+saveRDS(true_beta, paste0(data_dir, 'allfloodzips_no_dur2_true_beta_general_simulation', simulation, '.rds'))
 
 prob <- get_prob(N = data$N,
                  X = data$X,
@@ -138,7 +138,7 @@ prob <- get_prob(N = data$N,
                  strata = data$strata,
                  rows_per_strata = data$rows_per_strata)
 
-nsim <- 10000
+nsim <- 5000
 Y_mat <- matrix(data = NA, nrow = data$N, ncol = nsim)
 for (i in 1:nsim){
   Y_mat[,i] <- get_case_counts(sequence = data$sequence, 
@@ -147,7 +147,7 @@ for (i in 1:nsim){
                                prob = prob)
 }
 
-saveRDS(Y_mat, paste0(data_dir, '/allfloodzips_dur3_Y_general_simulation', simulation,'.rds'))
+saveRDS(Y_mat, paste0(data_dir, '/allfloodzips_no_dur2_Y_general_simulation', simulation,'.rds'))
 
 
 

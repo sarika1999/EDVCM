@@ -3,6 +3,8 @@
 
 simulation <- 4
 output_dir <- setwd(paste0('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/simulations/general_simulation', simulation, '/')) #cluster 
+figures_dir <- paste0('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/output/simulations/general_simulation', simulation, '/figures/')
+ifelse(!dir.exists(figures_dir), dir.create(figures_dir, recursive=TRUE), FALSE)
 data_dir <- paste0('/n/dominici_nsaph_l3/Lab/projects/floods-hospitalizations-glm/multinomial_GP/data/simulations/general_simulation', simulation, '/')
 
 suppressMessages(library(tidyverse))
@@ -11,6 +13,7 @@ suppressMessages(library(data.table))
 true_beta <- readRDS(paste0(data_dir, 'allfloodzips_dur3_true_beta_general_simulation', simulation, '.rds'))
 hyperparameter <- c(0.2, 0.5, 0.5)
 
+#some replicates may not finish due to time 
 posterior_list <- list.files(pattern="\\.csv$")
 posterior <- lapply(posterior_list, fread)
 
@@ -27,7 +30,7 @@ posterior_bias <- lapply(posterior, mutate, sigma_bias = little_sigma2 - hyperpa
 
 posterior_mean_bias <- matrix(data = NA, nrow = length(posterior_bias), ncol = (length(hyperparameter) + length(true_beta)))
 for (sim in 1:length(posterior_bias)){
-  posterior_mean_bias[sim,] <- colMeans(posterior_bias[[sim]])[7:15]
+  posterior_mean_bias[sim,] <- colMeans(posterior_bias[[sim]])[10:18]
 }
 
 boxplot(posterior_mean_bias)
@@ -55,7 +58,6 @@ coverage[,8] <- ifelse(posterior_quantiles[,c(15)] <= true_beta[5] & posterior_q
 coverage[,9] <- ifelse(posterior_quantiles[,c(17)] <= true_beta[6] & posterior_quantiles[,c(18)] >= true_beta[6], 1, 0)
 
 coverage_prob <- colMeans(coverage)
-coverage_prob
 
 
 
