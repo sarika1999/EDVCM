@@ -178,6 +178,7 @@ data$Sigma_theta <- NULL
 saveRDS(data, paste0(data_dir, 'allfloodzips_dur3_lags_mult_gp_general_simulation', simulation, '.rds'))
 
 saveRDS(true_beta, paste0(data_dir, 'allfloodzips_dur3_lags_true_beta_general_simulation', simulation, '.rds'))
+saveRDS(true_theta, paste0(data_dir, 'allfloodzips_dur3_lags_true_theta_general_simulation', simulation, '.rds'))
 
 prob <- get_prob(N = data$N,
                  X = data$X,
