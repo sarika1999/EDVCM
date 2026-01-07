@@ -5,7 +5,6 @@ This repository contains R and corresponding Stan code for the simulations and a
 ## Project Structure
 
 ### Data 
-
 #### `simulation/`: This directory details simulation data that was used to run the simulation study.
 FASRC location: ./multinomial_GP/
 - 45: medium smoothing spline + 25\% random noise (GP prior) 
@@ -28,13 +27,15 @@ Notes
 3. In 56 and 57, the underlying smoothing spline for the lags is the same (true_theta.rds) and then varying amounts of random noise is added (similar to the primary effect construction). 
 4. Simulations include durations 1-14 and 5 (2-dimensional) lagged effects for each duration when applicable. 
 
+####`application/`: This directory details data used for an application on floods and cause-specific hospitalization.
+ReD location: ./multinomial_GP/FFS_final_oct2025
 
 ### Code 
 
 #### `simulation/`: This directory includes all code used to run the simulation study.
 1. dataset_creation 
 - `random_data_sample.R`
-- `make_lags_data.R
+- `make_lags_data.R`
 2. setup 
 - `smoothing_simulation_setup.R`
 - `smoothing_simulation_setup_lags.R`
