@@ -27,7 +27,7 @@ Notes
 3. In 56 and 57, the underlying smoothing spline for the lags is the same (true_theta.rds) and then varying amounts of random noise is added (similar to the primary effect construction). 
 4. Simulations include durations 1-14 and 5 (2-dimensional) lagged effects for each duration when applicable. 
 
-####`application/`: This directory details data used for an application on floods and cause-specific hospitalization.
+#### `application/`: This directory details data used for an application on floods and cause-specific hospitalization.
 ReD location: ./multinomial_GP/FFS_final_oct2025
 
 ### Code 
