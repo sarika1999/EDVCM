@@ -59,14 +59,14 @@ ReD location: ./multinomial_GP/FFS_final_oct2025
 - `make_no_lags_data.R`
 2. setup 
 - `cov_spline_setup.R`
-- `lags_cov_setup.R`
+- `lags_cov_application_setup.R`
 3. running sampler 
 - `mult_gp_lags_cov_application.R`
 - `mult_gp_lags_cov_application.stan`
 - `mult_gp_cov_application.R`
 - `mult_gp_cov_application.stan`
 4. results
-- `model_fit.R`: obtain point estimates and corresponding 95\% credible intervels; determine significance and direction for significant coefficient estimates; format point estimates and credible intervals for covariate terms
+- `model_fit.R`: obtain point estimates and corresponding 95\% credible intervals; determine significance and direction for significant coefficient estimates; format point estimates and credible intervals for covariate terms
 - `cumulative_effects.R`:
 - `point_estimate_heatmap.R`:
 
