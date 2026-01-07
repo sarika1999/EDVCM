@@ -33,7 +33,7 @@ ReD location: ./multinomial_GP/FFS_final_oct2025
 ### Code 
 
 #### `simulation/`: This directory includes all code used to run the simulation study.
-1. dataset_creation 
+1. dataset creation 
 - `random_data_sample.R`
 - `make_lags_data.R`
 2. setup 
