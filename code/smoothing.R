@@ -1,6 +1,3 @@
-#number of basis functions 
-num_bf <- 3
-
 #1-dimensional
 #library(splines)
 #beta.range <- seq(-1,1,length.out=1000)
@@ -35,6 +32,9 @@ num_bf <- 3
 # set.seed(2024)
 # beta <- as.vector(mvtnorm::rmvnorm(n = 1, mean = mu, sigma = Sigma))
 
+#number of basis functions 
+num_bf <- 10
+
 ntimes <- 1:14
 d <- rep(1:14, ntimes)
 t <- c(1, 1:2, 1:3, 1:4, 1:5, 1:6, 1:7, 1:8, 1:9, 1:10, 1:11, 1:12, 1:13, 1:14)
@@ -56,9 +56,10 @@ library(mgcv)
 
 fit <- gam(dat$beta ~ s(dat$d, dat$t, bs = "tp", k = num_bf + 1), fit=FALSE) 
 
-X_2d <- fit$X[,-1] #remove intercept 
+X_2d <- fit$X[,-1, drop = FALSE] #remove intercept 
 
 #generate magnitude for each basis function from std. normal 
+#coef <- rnorm(ncol(X_2d))
 coef <- rnorm(num_bf) #number of basis functions should equal the number of columns in the model matrix (+1 with intercept)
 
 #smooth function is the linear combination of the natural spline values and the magnitudes/coefficients
