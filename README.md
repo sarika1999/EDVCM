@@ -32,7 +32,7 @@ ReD location: ./multinomial_GP/FFS_final_oct2025
 
 ### Code 
 
-#### `simulation/`: This directory includes all code used to run the simulation study.
+#### `simulation/`: This directory includes all code used to run and evaluate the simulation study including figure generation.
 1. dataset creation 
 - `random_data_sample.R`
 - `make_lags_data.R`
@@ -47,14 +47,28 @@ ReD location: ./multinomial_GP/FFS_final_oct2025
 - `mult_gp_no_lags_no_cov_simulation_comparator.stan`
 - `mult_gp_lags_2d_simulation.R`
 - `mult_gp_lags_2d_simulation.stan`
-
-#### `application/`: This directory includes example code for running the real data application. 
-
-#### `performance/`: This directory consists of code used to evaluate model performance from the simulation study including figure generation. 
+4. performance
 - `metrics.R`: compute percent bias, mean squared error, and coverage 
 - `frequentist_metrics.R`: compute percent bias, mean squared error, and coverage for the frequentist comparison
-- `additional_metrics.R`: obtain treedepth, effective sample size, and rhat; obtain significance using 95\% credible interval and direction for significant coefficient estimates; format point estimates and credible intervals for covariate terms
-- `heatmaps.R`: plot metrics for each duration-day coefficient estimate (or lagged day) 
+- `additional_metrics.R`: obtain treedepth, effective sample size, and rhat
+- `metric_heatmaps.R`: plot metrics for each duration-day coefficient estimate (or lagged day) 
+
+#### `application/`: This directory includes example code for running the real data application including figure generation. 
+1. dataset creation 
+- `make_daily_data.R`
+- `make_no_lags_data.R`
+2. setup 
+- `cov_spline_setup.R`
+- `lags_cov_setup.R`
+3. running sampler 
+- `mult_gp_lags_cov_application.R`
+- `mult_gp_lags_cov_application.stan`
+- `mult_gp_cov_application.R`
+- `mult_gp_cov_application.stan`
+4. results
+- `model_fit.R`: obtain point estimates and corresponding 95\% credible intervels; determine significance and direction for significant coefficient estimates; format point estimates and credible intervals for covariate terms
+- `cumulative_effects.R`:
+- `point_estimate_heatmap.R`:
 
 
 ## Usage Instructions
