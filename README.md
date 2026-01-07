@@ -53,7 +53,7 @@ ReD location: ./multinomial_GP/FFS_final_oct2025
 #### `performance/`: This directory consists of code used to evaluate model performance from the simulation study including figure generation. 
 - `metrics.R`: compute percent bias, mean squared error, and coverage 
 - `frequentist_metrics.R`: compute percent bias, mean squared error, and coverage for the frequentist comparison
-- `additional_metrics.R`: obtain treedepth, effective sample size, and rhat; obtain significance using 95\% credible interval and direction for significant coefficient estimates
+- `additional_metrics.R`: obtain treedepth, effective sample size, and rhat; obtain significance using 95\% credible interval and direction for significant coefficient estimates; format point estimates and credible intervals for covariate terms
 - `heatmaps.R`: plot metrics for each duration-day coefficient estimate (or lagged day) 
 
 
