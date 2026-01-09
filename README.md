@@ -47,6 +47,7 @@ ReD location: ./multinomial_GP/FFS_final_oct2025
 - `mult_gp_no_lags_no_cov_simulation_comparator.stan`
 - `mult_gp_lags_2d_simulation.R`
 - `mult_gp_lags_2d_simulation.stan`
+- `frequentist_simulation.R`
 4. performance
 - `metrics.R`: compute percent bias, mean squared error, and coverage 
 - `frequentist_metrics.R`: compute percent bias, mean squared error, and coverage for the frequentist comparison
@@ -55,11 +56,11 @@ ReD location: ./multinomial_GP/FFS_final_oct2025
 
 #### `application/`: This directory includes example code for running the real data application including figure generation. 
 1. dataset creation 
-- `make_county_cov_lags_data.R`
-- `make_no_lags_data.R`
+- `make_data.R`
+- `combine_county_data_cov_lags.R`
 2. setup 
 - `cov_spline_setup.R`
-- `lags_cov_application_setup.R`
+- `application_setup.R`
 3. running sampler 
 - `mult_gp_cov_application.R`
 - `mult_gp_cov_application.stan`
