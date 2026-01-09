@@ -6,7 +6,7 @@ This repository contains R and corresponding Stan code for the simulations and a
 
 ### Data 
 #### `simulation/`: This directory details simulation data that was used to run the simulation study.
-FASRC location: ./multinomial_GP/
+FASRC location: /n/holylabs/nethery_lab/Lab/floods-hospitalizations-glm/multinomial_GP/data/simulations
 - 45: medium smoothing spline + 25\% random noise (GP prior) 
 - 48: medium smoothing spline + 100\% random noise (GP prior) 
 - 49: medium smoothing spline + 25\% random noise (same underlying surface values as 45 but ran with N(0,1) prior) 
@@ -55,14 +55,12 @@ ReD location: ./multinomial_GP/FFS_final_oct2025
 
 #### `application/`: This directory includes example code for running the real data application including figure generation. 
 1. dataset creation 
-- `make_daily_data.R`
+- `make_county_cov_lags_data.R`
 - `make_no_lags_data.R`
 2. setup 
 - `cov_spline_setup.R`
 - `lags_cov_application_setup.R`
 3. running sampler 
-- `mult_gp_lags_cov_application.R`
-- `mult_gp_lags_cov_application.stan`
 - `mult_gp_cov_application.R`
 - `mult_gp_cov_application.stan`
 4. results
