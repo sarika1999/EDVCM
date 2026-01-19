@@ -39,36 +39,36 @@ df_plot$type <- factor(df_plot$type, levels = unique(df_plot$type))
 
 pbias_plot <- df_plot %>%
   ggplot(aes(x = t, y = reorder(d, -d), fill = pct_bias)) +
-  geom_tile() + 
+  geom_tile(color = "black", linewidth = 0.5) + 
   facet_wrap(~type) +
-  scale_fill_gradient2(low="blue", mid = "white", high="red", midpoint = 0) +
+  scale_fill_gradient2(low="blue", mid = "grey90", high="red", midpoint = 0) +
   scale_x_continuous(breaks=seq(1, 14, 1)) +
   labs(x = expression(paste("Day following flood event (",italic("l"),")")), y = expression(paste("Duration (",italic("d"),")")), fill = "Percent bias") +
   theme_bw() +
-  theme(legend.position = "bottom")
+  theme(panel.grid = element_blank(), element_text(size = 12, face = "bold"), legend.position = "bottom")
 
 cov_plot <- df_plot %>%
   ggplot(aes(x = t, y = reorder(d, -d), fill = coverage)) +
-  geom_tile() +
+  geom_tile(color = "black", linewidth = 0.5) +
   facet_wrap(~type) +
-  scale_fill_gradientn(colours = c("blue", "white", "red"),
+  scale_fill_gradientn(colours = c("blue", "grey90", "red"),
                        values = scales::rescale(c(0, 0.5, 0.95, 0.975, 1)),
                        limits = c(0,1)) +
   scale_x_continuous(breaks=seq(1, 14, 1)) +
   labs(x = expression(paste("Day following flood event (",italic("l"),")")), y = expression(paste("Duration (",italic("d"),")")), fill = "Coverage probability") +
   theme_bw() +
-  theme(legend.position = "bottom")
+  theme(panel.grid = element_blank(), legend.position = "bottom", element_text(size = 12, face = "bold"))
 
 
 mse_plot <- df_plot %>%
   ggplot(aes(x = t, y = reorder(d, -d), fill = sqrt(mse))) +
-  geom_tile() + 
+  geom_tile(color = "black", linewidth = 0.5) + 
   facet_wrap(~type) +
-  scale_fill_gradient2(low="blue", mid = "white", high="red") +
+  scale_fill_gradient2(low="blue", mid = "grey90", high="red") +
   scale_x_continuous(breaks=seq(1, 14, 1)) +
   labs(x = expression(paste("Day following flood event (",italic("l"),")")), y = expression(paste("Duration (",italic("d"),")")), fill = "RMSE") +
   theme_bw() +
-  theme(legend.position = "bottom")
+  theme(panel.grid = element_blank(), strip.text = element_text(size = 12, face = "bold"), legend.position = "bottom")
 mse_plot
 
 library(ggpubr)
