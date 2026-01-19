@@ -43,7 +43,7 @@ pbias_plot <- df_plot %>%
   facet_wrap(~type) +
   scale_fill_gradient2(low="blue", mid = "white", high="red", midpoint = 0) +
   scale_x_continuous(breaks=seq(1, 14, 1)) +
-  labs(x = expression(paste("Day following flood event (",italic("l"),")")), y = expression(paste("Duration (",italic("d"),")")), fill = "Average % bias") +
+  labs(x = expression(paste("Day following flood event (",italic("l"),")")), y = expression(paste("Duration (",italic("d"),")")), fill = "Percent bias") +
   theme_bw() +
   theme(legend.position = "bottom")
 
@@ -55,7 +55,7 @@ cov_plot <- df_plot %>%
                        values = scales::rescale(c(0, 0.5, 0.95, 0.975, 1)),
                        limits = c(0,1)) +
   scale_x_continuous(breaks=seq(1, 14, 1)) +
-  labs(x = expression(paste("Day following flood event (",italic("l"),")")), y = expression(paste("Duration (",italic("d"),")")), fill = "Average coverage probability") +
+  labs(x = expression(paste("Day following flood event (",italic("l"),")")), y = expression(paste("Duration (",italic("d"),")")), fill = "Coverage probability") +
   theme_bw() +
   theme(legend.position = "bottom")
 
@@ -66,7 +66,7 @@ mse_plot <- df_plot %>%
   facet_wrap(~type) +
   scale_fill_gradient2(low="blue", mid = "white", high="red") +
   scale_x_continuous(breaks=seq(1, 14, 1)) +
-  labs(x = expression(paste("Day following flood event (",italic("l"),")")), y = expression(paste("Duration (",italic("d"),")")), fill = "Average RMSE") +
+  labs(x = expression(paste("Day following flood event (",italic("l"),")")), y = expression(paste("Duration (",italic("d"),")")), fill = "RMSE") +
   theme_bw() +
   theme(legend.position = "bottom")
 mse_plot
