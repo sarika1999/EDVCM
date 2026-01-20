@@ -35,35 +35,35 @@ ReD location: ./multinomial_GP/FFS_final_oct2025
 #### `simulation/`: This directory includes all code used to run and evaluate the simulation study including figure generation.
 1. dataset creation 
 - `random_data_sample.R`: take 10\% of real exposure dataset to use in simulation study 
-- `make_lags_data.R`: add lagged days (post-flood days) to dataset 
+- `make_lags_data.R`: add lag days (post-flood days) to simulated dataset 
 2. setup 
-- `smoothing_simulation_setup.R`: 
-- `smoothing_simulation_setup_lags.R`:
+- `smoothing_simulation_setup.R`: R script for (1) generating smoothed beta and adding random noise, (2) generating 5000 replicate datasets, and (3) outputting a single list with all data pieces to input into stan model 
+- `smoothing_simulation_setup_lags.R`: R script for (1) generating smoothed beta and theta and adding random noise, (2) generating 5000 replicate datasets, and (3) outputting a single list with all data pieces to input into stan model 
 - `ground_truth_heatmap.R`: make heatmap of true underlying surfaces (generated coefficient values) 
 3. running sampler 
-- `mult_gp_no_lags_no_cov_simulation.R`:
-- `mult_gp_no_lags_no_cov_simulation.stan`:
-- `mult_gp_no_lags_no_cov_simulation_comparator.R`:
-- `mult_gp_no_lags_no_cov_simulation_comparator.stan`:
-- `mult_gp_lags_2d_simulation.R`:
-- `mult_gp_lags_2d_simulation.stan`:
-- `frequentist_simulation.R`: 
+- `EDVCM_no_lags_no_cov_simulation.R`: R script for running the EDVCM on simulated data with no lag days or time-varying covariates 
+- `EDVCM_no_lags_no_cov_simulation.stan`: stan model for the EDVCM on simulated data with no lag days or time-varying covariates 
+- `EDVCM_no_lags_no_cov_simulation_comparator.R`: R script for running the EDVCM comparator (independent standard normal priors) on simulated data with no lag days or time-varying covariates 
+- `EDVCM_no_lags_no_cov_simulation_comparator.stan`: stan model for the EDVCM comparator (independent standard normal priors) on simulated data with no lag days or time-varying covariates 
+- `EDVCM_lags_2d_simulation.R`: R script for running the EDVCM on simulated data with 2-dimensional lag days and no time-varying covariates 
+- `EDVCM_lags_2d_simulation.stan`: stan model for the EDVCM on simulated data with 2-dimensional lag days and no time-varying covariates
+- `frequentist_simulation.R`: split 5000 replicate datasets by duration and run a GLM on each one  
 4. performance
 - `metrics.R`: compute percent bias, mean squared error, and coverage 
-- `frequentist_metrics.R`: compute percent bias, mean squared error, and coverage for the frequentist comparison
+- `frequentist_metrics.R`: compute percent bias, mean squared error, and coverage for the frequentist comparator 
 - `additional_metrics.R`: obtain treedepth, effective sample size, and rhat
-- `metric_heatmaps.R`: make heatmap of each metric for each duration-day (or lagged day) coefficient point estimate 
+- `metric_heatmaps.R`: make heatmap of each metric for each duration-day (or lag day) coefficient point estimate 
 
 #### `application/`: This directory includes example code for running the real data application including figure generation. 
 1. dataset creation 
-- `make_data.R`: 
-- `combine_county_data_cov_lags.R`: 
+- `make_data.R`: add duration and daily time-point indicators and subset flood-county combinations in application data for a particular cause of hospitalization 
+- `combine_county_data_cov_lags.R`: add lag days (post-flood days) to application data and/or merge with covariate data
 2. setup 
-- `cov_spline_setup.R`: create spline basis matrix for each covariate to input into stan sampler 
-- `application_setup.R`: take all data pieces and output a single list to input into stan sampler 
+- `cov_spline_setup.R`: create spline basis matrix for each covariate to input into stan model 
+- `application_setup.R`: take all data pieces and output a single list to input into stan model
 3. running sampler 
-- `mult_gp_cov_application.R`: R script for running sampler on a particular cause of hospitalization
-- `mult_gp_cov_application.stan`: stan sampler for application (includes time-varying covariates)
+- `EDVCM_cov_application.R`: R script for running the EDVCM on a particular cause of hospitalization
+- `EDVCM_cov_application.stan`: stan model for the EDVCM on application data (includes time-varying covariates)
 4. results
 - `model_fit.R`: obtain point estimates and corresponding 95\% credible intervals; determine significance and direction for significant coefficient estimates; format point estimates and credible intervals for covariate terms
 - `cumulative_effects.R`: calculate cumulative rate ratio for each duration with(out) presence of time-varying covariates 

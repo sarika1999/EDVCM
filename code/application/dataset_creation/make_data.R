@@ -66,6 +66,6 @@ final <- final %>% drop_na()
 
 saveRDS(final, './multinomial_GP/FFS_final_oct2025/medicare_cause_200_2016_no_lag_dur10.rds')
 
-##note: will have to use combine_county_data_cov_lags.R if we want to use covariates or lags in the sampler##
+##note: will have to use merge_county_data_cov_lags.R if we want to use covariates or lags in the sampler##
 ##using covariates is likely to result in a slightly smaller dataset due to missing values##
 
