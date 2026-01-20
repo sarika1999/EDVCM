@@ -36,7 +36,7 @@ freq <- ggplot() +
   geom_sf(data = county_floods_map, aes(fill = counts), color = "white", size = 0.1) +  # county borders
   geom_sf(data = states, fill = NA, color = "black", size = 0.5) +  # state outlines
   scale_fill_viridis(
-    option = "magma",
+    option = "plasma",
     name = "Frequency",
     na.value = "grey90"
   ) +
@@ -45,8 +45,7 @@ freq <- ggplot() +
     axis.text = element_blank(),
     axis.ticks = element_blank(),
     panel.grid = element_blank(),
-    legend.title = element_text(size = 12, face = "bold"),
-    legend.text = element_text(size = 10)
+    legend.title = element_text(size = 12, face = "bold")
   )
 
 county_floods_map %>%
@@ -60,7 +59,7 @@ dur <- ggplot() +
   geom_sf(data = county_floods_map, aes(fill = avg), color = "white", size = 0.1) +  # county borders
   geom_sf(data = states, fill = NA, color = "black", size = 0.5) +  # state outlines
   scale_fill_viridis(
-    option = "magma",
+    option = "plasma",
     name = "Average duration",
     breaks = seq(0, 10, by = 2),
     limits = c(0, 10),
@@ -71,8 +70,7 @@ dur <- ggplot() +
     axis.text = element_blank(),
     axis.ticks = element_blank(),
     panel.grid = element_blank(),
-    legend.title = element_text(size = 12, face = "bold"),
-    legend.text = element_text(size = 10)
+    legend.title = element_text(size = 12, face = "bold")
   )
 
 library(ggpubr)
