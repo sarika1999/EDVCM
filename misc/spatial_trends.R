@@ -61,7 +61,7 @@ dur <- ggplot() +
   scale_fill_viridis(
     option = "plasma",
     name = "Average duration",
-    breaks = seq(0, 10, by = 2),
+    breaks = seq(2, 10, by = 2),
     limits = c(0, 10),
     na.value = "grey90"
   ) +
@@ -74,4 +74,4 @@ dur <- ggplot() +
   )
 
 library(ggpubr)
-ggarrange(freq, dur, labels = c("A", "B"), ncol = 2)
+ggarrange(freq, dur, labels = c("A", "B"), nrow = 2)
