@@ -88,7 +88,7 @@ model {
   // priors
   // variance (little_sigma) should use inv_gamma and precision should use gamma (phi, tau, eta) - 7/11/24
   sigma ~ student_t(3,0,1); // uniform(0,1); // lognormal(log(0.3), 0.2);
-  phi ~ lognormal(log(0.3), 0.2); // uniform(0,1)
+  phi ~ lognormal(0, 0.6); // uniform(0,1)
   tau ~ lognormal(0, 0.6); // uniform(0,1) // lognormal(log(0.3), 0.2);
   zeta ~ normal(0, 100); // independent normal priors on each zeta coefficient (confounder)
   beta ~ multi_normal_cholesky(mu_beta, L_Sigma_beta); // beta is a vector of length D*(D+1)/2
