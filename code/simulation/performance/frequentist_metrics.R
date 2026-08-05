@@ -58,7 +58,7 @@ saveRDS(mse, 'mse_freqX.rds')
 
 #coverage 
 
-# 1) For each simulation, compute a logical vector:
+# For each simulation, compute a logical vector:
 #    TRUE if rr is inside [rr.ll, rr.ul], FALSE otherwise
 coverage_mat_freqX <- sapply(combined_data_cleaned_freqX, function(d) {
   (rand_true_beta_general_smooth_med_Xpctnoise_simulationY >= d$rr.ll & rand_true_beta_general_smooth_med_Xpctnoise_simulationY <= d$rr.ul)
@@ -67,7 +67,7 @@ coverage_mat_freqX <- sapply(combined_data_cleaned_freqX, function(d) {
 # coverage_mat will be a ((D*D+1)/2) x n_sim logical matrix
 dim(coverage_mat_freqX) 
 
-# 2) Coverage probability for each row (parameter)
+# Coverage probability for each row (parameter)
 coverage_prob_freqX <- rowMeans(coverage_mat_freqX)
 saveRDS(coverage_prob_freqX, 'coverage_prob_freqX.rds')
 
